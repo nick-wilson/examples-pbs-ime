@@ -1,0 +1,49 @@
+/ime/users/nscc/someone/7857319.wlm01
+Prestaged buckets
+---------------
+100.00%
+Prestaged buckets
+---------------
+100.00%
+File       : ime:///scratch/ime/users/nscc/someone/7857319.wlm01/Au.pbe-nd-van.UPF
+IM Size    : 316073
+FS Size    : 316073
+Device     : d61f715ah/3592384858d
+Inode      : 144121502248224524
+IME Fid    : 20005be22:470c:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0644/-rw-r--r--)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Mon Nov 19 18:05:22 2018
+Modify     : Mon Jul 20 16:04:22 2009
+Create     : Mon Nov 19 18:05:22 2018
+
+File       : ime:///scratch/ime/users/nscc/someone/7857319.wlm01/ausurf.in
+IM Size    : 6394
+FS Size    : 6394
+Device     : d61f715ah/3592384858d
+Inode      : 144121502248224525
+IME Fid    : 20005be22:470d:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0644/-rw-r--r--)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Mon Nov 19 18:05:22 2018
+Modify     : Thu Feb 18 00:50:04 2010
+Create     : Mon Nov 19 18:05:22 2018
+
+======================================================================================
+
+			Resource Usage on 2018-11-19 18:10:41.349810:
+
+	JobId: 7857319.wlm01  
+	Project: 90000001 
+	Exit Status: 0
+	NCPUs Requested: 48				NCPUs Used: 48
+							CPU Time Used: 02:05:37
+	Memory Requested: 128gb 				Memory Used: 14604232kb
+							Vmem Used: 25349572kb
+	Walltime requested: 01:00:00 			Walltime Used: 00:05:19
+	
+	Execution Nodes Used: (std1704:ncpus=24:mem=67108864kb)+(std1707:ncpus=24:mem=67108864kb)
+	
+ ======================================================================================

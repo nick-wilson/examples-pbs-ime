@@ -1,0 +1,9 @@
+Plugin "eth" in /opt/ddn/cci/lib/cci/cci_ctp_eth supports ABI version 1; only version 2 is supported -- ignored
+Plugin "sm" in /opt/ddn/cci/lib/cci/cci_ctp_sm supports ABI version 1; only version 2 is supported -- ignored
+Plugin "sock" in /opt/ddn/cci/lib/cci/cci_ctp_sock supports ABI version 1; only version 2 is supported -- ignored
+Plugin "eth" in /opt/ddn/cci/lib/cci/cci_ctp_eth supports ABI version 1; only version 2 is supported -- ignored
+Plugin "sm" in /opt/ddn/cci/lib/cci/cci_ctp_sm supports ABI version 1; only version 2 is supported -- ignored
+Plugin "sock" in /opt/ddn/cci/lib/cci/cci_ctp_sock supports ABI version 1; only version 2 is supported -- ignored
+Plugin "eth" in /opt/ddn/cci/lib/cci/cci_ctp_eth supports ABI version 1; only version 2 is supported -- ignored
+Plugin "sm" in /opt/ddn/cci/lib/cci/cci_ctp_sm supports ABI version 1; only version 2 is supported -- ignored
+Plugin "sock" in /opt/ddn/cci/lib/cci/cci_ctp_sock supports ABI version 1; only version 2 is supported -- ignored

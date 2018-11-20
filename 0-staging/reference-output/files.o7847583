@@ -1,0 +1,151 @@
+User IME directory follows the pattern of $HOME with /home replaced with /ime
+IMEDIR=/ime/users/nscc/someone
+The backing directory for /ime is in /scratch/ime
+BACKDIR=/scratch/ime/users/nscc/someone
+drwxr-xr-x 2 fsg3 fujitsu 4096 Nov 16 18:50 /ime/users/nscc/someone
+drwxr-xr-x 2 fsg3 fujitsu 4096 Nov 16 18:50 /scratch/ime/users/nscc/someone
+The directory in the IME namespace is the name without the /ime at the start:
+URI=ime://users/nscc/someone
+Change directory to IME
+/ime/users/nscc/someone
+make a directory in the IME namespace
+you can see the directory in both /scratch and /ime
+drwx------ 2 fsg3 fujitsu 4096 Nov 17 02:47 /ime/users/nscc/someone/test-dir
+drwx------ 2 fsg3 fujitsu 4096 Nov 17 02:47 /scratch/ime/users/nscc/someone/test-dir
+create a file in the backing directory in /scratch
+and you can see the contents in the IME
+hello world
+however in this case the file contents are actually read directly from the lustre filesystem
+see the values of "IM Size" and "FS Size" reported by the ime-stat command:
+File       : ime:///scratch/ime/users/nscc/someone/test-dir/test-file
+IM Size    : 0
+FS Size    : 12
+Device     : d61f715ah/3592384858d
+Inode      : 144121467351719131
+IME Fid    : 20005b602:1dcdb:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0600/-rw-------)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Sat Nov 17 02:56:00 2018
+Modify     : Sat Nov 17 02:56:00 2018
+Create     : Sat Nov 17 02:56:00 2018
+
+To bring the input file into the IME then it needs to be pre-staged with ime-prestage
+Prestaged buckets
+---------------
+100.00%
+and now the file is in the IME
+File       : ime:///scratch/ime/users/nscc/someone/test-dir/test-file
+IM Size    : 12
+FS Size    : 12
+Device     : d61f715ah/3592384858d
+Inode      : 144121467351719131
+IME Fid    : 20005b602:1dcdb:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0600/-rw-------)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Sat Nov 17 02:56:00 2018
+Modify     : Sat Nov 17 02:56:00 2018
+Create     : Sat Nov 17 02:56:00 2018
+
+When you open and write to a file in the IME then the inode is present in both IME and Lustre but initially the contents are only in the IME
+-rw------- 1 fsg3 fujitsu 1073741824 Nov 17 02:54 /ime/users/nscc/someone/outputfile
+-rw------- 1 fsg3 fujitsu          0 Nov 17 02:54 /scratch/ime/users/nscc/someone/outputfile
+File       : ime:///scratch/ime/users/nscc/someone/outputfile
+IM Size    : 1073741824
+FS Size    : 0
+Device     : d61f715ah/3592384858d
+Inode      : 144121442068332553
+IME Fid    : 20005b01f:9:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0600/-rw-------)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Sat Nov 17 02:54:49 2018
+Modify     : Sat Nov 17 02:54:49 2018
+Create     : Sat Nov 17 02:54:49 2018
+
+synchronize the file back to the Lustre filesystem, the -b specifies a blocking operation so command will not return until data has finished transfer
+and now the file contents are present in /scratch
+-rw------- 1 fsg3 fujitsu 1073741824 Nov 17 02:54 /ime/users/nscc/someone/outputfile
+-rw------- 1 fsg3 fujitsu 1073741824 Nov 17 02:54 /scratch/ime/users/nscc/someone/outputfile
+File       : ime:///scratch/ime/users/nscc/someone/outputfile
+IM Size    : 1073741824
+FS Size    : 1073741824
+Device     : d61f715ah/3592384858d
+Inode      : 144121442068332553
+IME Fid    : 20005b01f:9:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0600/-rw-------)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Sat Nov 17 02:54:49 2018
+Modify     : Sat Nov 17 02:54:51 2018
+Create     : Sat Nov 17 02:54:51 2018
+
+You can manually release data from the IME when it is no longer needed.
+This will happen automatically when the amount of data in the IME reaches a defined threshold
+File       : ime:///scratch/ime/users/nscc/someone/outputfile
+IM Size    : 0
+FS Size    : 1073741824
+Device     : d61f715ah/3592384858d
+Inode      : 144121442068332553
+IME Fid    : 20005b01f:9:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0600/-rw-------)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Sat Nov 17 02:54:49 2018
+Modify     : Sat Nov 17 02:54:51 2018
+Create     : Sat Nov 17 02:54:51 2018
+
+The -k flag to ime-release specifies that only synchronized data should be purged, otherwise unsynchronized data will be lost
+write to file in IME
+-rw------- 1 fsg3 fujitsu 12 Nov 17 02:50 /ime/users/nscc/someone/hello
+-rw------- 1 fsg3 fujitsu  0 Nov 17 02:50 /scratch/ime/users/nscc/someone/hello
+File       : ime:///scratch/ime/users/nscc/someone/hello
+IM Size    : 12
+FS Size    : 0
+Device     : d61f715ah/3592384858d
+Inode      : 144121496913051649
+IME Fid    : 20005bce4:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0600/-rw-------)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Sat Nov 17 02:50:43 2018
+Modify     : Sat Nov 17 02:50:43 2018
+Create     : Sat Nov 17 02:50:43 2018
+
+release file
+-rw------- 1 fsg3 fujitsu 0 Nov 17 02:50 /ime/users/nscc/someone/hello
+-rw------- 1 fsg3 fujitsu 0 Nov 17 02:50 /scratch/ime/users/nscc/someone/hello
+File       : ime:///scratch/ime/users/nscc/someone/hello
+IM Size    : 0
+FS Size    : 0
+Device     : d61f715ah/3592384858d
+Inode      : 144121496913051649
+IME Fid    : 20005bce4:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Access     : (0600/-rw-------)
+Uid        : (11013/fsg3)
+Gid        : (11001/fujitsu)
+Access     : Sat Nov 17 02:50:43 2018
+Modify     : Sat Nov 17 02:50:43 2018
+Create     : Sat Nov 17 02:50:43 2018
+
+the data is probably now missing:
+Unsynchronized data lost from /hello
+Unsynchronized data lost from /scratch/ime/users/nscc/someone/hello
+Alternatively deleting files will also purge the data from the IME
+======================================================================================
+
+			Resource Usage on 2018-11-17 02:56:06.488071:
+
+	JobId: 7847583.wlm01  
+	Project: 90000001 
+	Exit Status: 0
+	NCPUs Requested: 24				NCPUs Used: 24
+							CPU Time Used: 00:00:02
+	Memory Requested: 64gb 				Memory Used: 1640kb
+							Vmem Used: 110272kb
+	Walltime requested: 00:10:00 			Walltime Used: 00:00:09
+	
+	Execution Nodes Used: (std1704:ncpus=24:mem=67108864kb)
+	
+ ======================================================================================

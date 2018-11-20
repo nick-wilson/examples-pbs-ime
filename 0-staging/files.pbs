@@ -1,0 +1,80 @@
+#!/bin/bash
+#PBS -N files
+#PBS -l select=1:ncpus=24:mpiprocs=24:ompthreads=1:mem=64gb
+#PBS -l walltime=0:10:00
+##PBS -j oe
+
+echo User IME directory follows the pattern of '$HOME' with /home replaced with /ime
+IMEDIR=${HOME/home/ime}
+echo IMEDIR=$IMEDIR
+echo The backing directory for /ime is in /scratch/ime
+BACKDIR=/scratch${IMEDIR}
+echo BACKDIR=$BACKDIR
+ls -ld $IMEDIR $BACKDIR
+echo The directory in the IME namespace is the name without the /ime at the start:
+URI="ime://${IMEDIR#/ime/}"
+echo URI=$URI
+ime-stat $URI
+
+echo Change directory to IME
+cd $IMEDIR || exit $?
+pwd
+
+echo make a directory in the IME namespace
+mkdir test-dir
+
+echo you can see the directory in both /scratch and /ime
+ls -ld $IMEDIR/test-dir $BACKDIR/test-dir
+
+echo create a file in the backing directory in /scratch
+echo hello world > $BACKDIR/test-dir/test-file
+echo and you can see the contents in the IME
+cat $BACKDIR/test-dir/test-file
+
+echo however in this case the file contents are actually read directly from the lustre filesystem
+echo see the values of \"IM Size\" and \"FS Size\" reported by the ime-stat command:
+ime-stat $URI/test-dir/test-file
+
+echo To bring the input file into the IME then it needs to be pre-staged with ime-prestage
+# The -b flag is for a blocking call which only returns when the staging has finished.
+# Leave off this flag for asynchronous call which returns immediately.
+# To prestage a whole directory use the -r (recursive) flag
+ime-prestage -b $URI/test-dir/test-file
+
+echo and now the file is in the IME
+ime-stat $URI/test-dir/test-file
+
+echo When you open and write to a file in the IME then the inode is present in both IME and Lustre but initially the contents are only in the IME
+dd if=/dev/zero of=$IMEDIR/outputfile bs=1024k count=1k
+ls -l $IMEDIR/outputfile $BACKDIR/outputfile
+ime-stat $URI/outputfile
+
+echo synchronize the file back to the Lustre filesystem, the -b specifies a blocking operation so command will not return until data has finished transfer
+# To sync a whole directory use the -r (recursive) flag
+ime-sync -b $URI/outputfile
+
+echo and now the file contents are present in /scratch
+ls -l $IMEDIR/outputfile $BACKDIR/outputfile
+ime-stat $URI/outputfile
+
+echo You can manually release data from the IME when it is no longer needed.
+echo This will happen automatically when the amount of data in the IME reaches a defined threshold 
+ime-release -k $URI/outputfile
+ime-stat $URI/outputfile
+
+echo The -k flag to ime-release specifies that only synchronized data should be purged, otherwise unsynchronized data will be lost
+echo write to file in IME
+echo hello world > $IMEDIR/hello
+ls -l $IMEDIR/hello $BACKDIR/hello
+ime-stat $URI/hello
+echo release file
+ime-release $URI/hello
+ls -l $IMEDIR/hello $BACKDIR/hello
+ime-stat $URI/hello
+
+echo the data is probably now missing:
+if [ ! -s $IMEDIR/hello ] ; then echo Unsynchronized data lost from $IMEDIR/hello ; fi
+if [ ! -s $BACKDIR/hello ] ; then echo Unsynchronized data lost from $BACKDIR/hello ; fi
+
+echo Alternatively deleting files will also purge the data from the IME
+rm -rf $IMEDIR/test-dir $IMEDIR/outputfile $IMEDIR/hello
