@@ -6,11 +6,10 @@
 #PBS -P Personal
 
 # The IME is not mounted on the login nodes
-# Therefore you can't submit the job or stage the files on
-# the login nodes
+# Therefore you can't prestage the files on the login nodes
 
 # The input files for this example are small so we can copy them to the
-# right place at the start of the job 
+# right place from /home at the start of the job 
 # If the dataset is large then move or copy it into /scratch/ime before
 # running the job
 
